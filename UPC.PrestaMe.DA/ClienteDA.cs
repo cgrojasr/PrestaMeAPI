@@ -6,31 +6,32 @@ namespace UPC.PrestaMe.DA
 {
     public class ClienteDA
     {
-        //private readonly IConfiguration _configuration;
-        //public ClienteDA(IConfiguration configuration)
-        //{
-        //    _configuration = configuration;
-        //}
+        private readonly SqlConnection conn;
+        private readonly AppSettings appSettings;
+        public ClienteDA()
+        {
+            appSettings = new AppSettings();
+            conn = new SqlConnection(appSettings.ConnectionString);
+        }
 
-        public List<dynamic> ListarTodo() {
-            var strConn = "Server=DESKTOP-7VCVMOR\\SQLEXPRESS; Database=dbPrestaMe; User Id=sa; Password=password; TrustServerCertificate=true";
+        public List<ClienteBE> ListarTodo() {
             var query = "SELECT * FROM Cliente";
 
-            using (var connection = new SqlConnection(strConn))
-            {
-                var lstClientes = connection.Query(query).ToList();
+            using (conn) {
+                var lstClientes = conn.Query<ClienteBE>(query).ToList();
                 return lstClientes;
             }
         }
 
         public ClienteBE_Autenticar Autenticar(string email, string password)
         {
-            var strConn = "Server=DESKTOP-7VCVMOR\\SQLEXPRESS; Database=dbPrestaMe; User Id=sa; Password=password; TrustServerCertificate=true";
-            var query = String.Format("SELECT id_cliente, nombres, apellidos FROM cliente WHERE email = '{0}' AND password = '{1}'", email, password);
+            var query = 
+                $"SELECT id_cliente, nombres, apellidos " +
+                $"FROM cliente WHERE email = '{email}' AND password = '{password}'";
             var objClienteBE = new ClienteBE_Autenticar();
-            using (var connection = new SqlConnection(strConn))
-            {
-                var cliente = connection.Query(query).ToList();
+
+            using (conn) {
+                var cliente = conn.Query(query).ToList();
                 objClienteBE = (from c in cliente
                                 select new ClienteBE_Autenticar
                                 {
@@ -38,16 +39,23 @@ namespace UPC.PrestaMe.DA
                                     nombres = c.nombres,
                                     apellidos = c.apellidos
                                 }).Single();
+                return objClienteBE;
             }
-            return objClienteBE;
         }
 
         public ClienteBE Registrar(ClienteBE objClienteBE) {
-            var strConn = "Server=DESKTOP-7VCVMOR\\SQLEXPRESS; Database=dbPrestaMe; User Id=sa; Password=password; TrustServerCertificate=true";
-            var query = $"INSERT cliente VALUES ('{objClienteBE.nombres}', '{objClienteBE.apellidos}', '{objClienteBE.email}', '{objClienteBE.password}', '{objClienteBE.fecha_nacimiento.ToString("yyyy-MM-dd")}', {objClienteBE.id_doc_identidad}, '{objClienteBE.numero_doc_identidad}') SELECT SCOPE_IDENTITY()";
-            using (var connection = new SqlConnection(strConn))
-            {
-                var id_cliente = connection.QuerySingle<int>(query);
+            var query = 
+                $"INSERT cliente VALUES (" +
+                $"'{objClienteBE.nombres}', " +
+                $"'{objClienteBE.apellidos}', " +
+                $"'{objClienteBE.email}', " +
+                $"'{objClienteBE.password}', " +
+                $"'{objClienteBE.fecha_nacimiento.ToString("yyyy-MM-dd")}', " +
+                $"{objClienteBE.id_doc_identidad}, " +
+                $"'{objClienteBE.numero_doc_identidad}') " +
+                $"SELECT SCOPE_IDENTITY()";
+            using (conn) {
+                var id_cliente = conn.QuerySingle<int>(query);
                 objClienteBE.id_cliente = id_cliente;
             }
             return objClienteBE;
@@ -55,7 +63,6 @@ namespace UPC.PrestaMe.DA
 
         public ClienteBE Actualizar(ClienteBE objClienteBE)
         {
-            var strConn = "Server=DESKTOP-7VCVMOR\\SQLEXPRESS; Database=dbPrestaMe; User Id=sa; Password=password; TrustServerCertificate=true";
             var query = 
                 $"UPDATE cliente SET " +
                 $"nombres = '{objClienteBE.nombres}', " +
@@ -67,20 +74,29 @@ namespace UPC.PrestaMe.DA
                 $"numero_doc_identidad = '{objClienteBE.numero_doc_identidad}' " +
                 $"WHERE id_cliente = {objClienteBE.id_cliente} " +
                 $"SELECT * FROM cliente WHERE id_cliente = {objClienteBE.id_cliente}";
-            using (var connection = new SqlConnection(strConn))
+            using (conn)
             {
-                objClienteBE = connection.Query<ClienteBE>(query).Single();
+                objClienteBE = conn.Query<ClienteBE>(query).Single();
+                return objClienteBE;
             }
-            return objClienteBE;
         }
 
         public bool Eliminar(int id_cliente) {
-            var strConn = "Server=DESKTOP-7VCVMOR\\SQLEXPRESS; Database=dbPrestaMe; User Id=sa; Password=password; TrustServerCertificate=true";
             var query = $"DELETE FROM cliente WHERE id_cliente = {id_cliente}";
-            using(var connection = new SqlConnection(strConn)) { 
-                connection.Execute(query);
+            using(conn) {
+                conn.Execute(query);
+                return true;
+            }            
+        }
+
+        public ClienteBE BuscarPorId(int id_cliente) {
+            ClienteBE objClienteBE = new ClienteBE();
+            var query = $"SELECT * FROM cliente WHERE id_cliente = {id_cliente}";
+            using (conn)
+            {
+                objClienteBE = conn.QuerySingle<ClienteBE>(query);
+                return objClienteBE;
             }
-            return true;
         }
     }
 }

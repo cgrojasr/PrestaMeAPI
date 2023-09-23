@@ -11,15 +11,40 @@ namespace UPC.PrestaMe.DA
 {
     public class CuentaDA
     {
-        public IEnumerable<CuentaBE_ListarPorCliente> ListarPorCliente(int id_cliente) {
-            var strConn = "Server=DESKTOP-7VCVMOR\\SQLEXPRESS; Database=dbPrestaMe; User Id=sa; Password=password; TrustServerCertificate=true";
-            var query = $"SELECT id_cuenta, numero_cuenta, saldo_contable FROM cuenta WHERE id_cliente = {id_cliente}";
+        private readonly SqlConnection conn;
+        private readonly AppSettings appSettings;
+        public CuentaDA() {
+            appSettings = new AppSettings();
+            conn = new SqlConnection(appSettings.ConnectionString);
+        }
 
-            using (var connection = new SqlConnection(strConn))
-            {
-                var lstCuentasPorCliente = connection.Query<CuentaBE_ListarPorCliente>(query).ToList();
-                return lstCuentasPorCliente;
-            }
+        public IEnumerable<CuentaBE_ListarPorCliente> ListarPorCliente(int id_cliente) {
+            var query = 
+                $"SELECT id_cuenta, numero_cuenta, saldo_contable " +
+                $"FROM cuenta " +
+                $"WHERE id_cliente = {id_cliente}";
+
+            conn.Open();
+            var lstCuentasPorCliente = conn.Query<CuentaBE_ListarPorCliente>(query).ToList();
+            conn.Close();
+            return lstCuentasPorCliente;
+        }
+
+        public CuentaBE Registrar(CuentaBE objCuentaBE) {
+            var query = 
+                $"INSERT cuenta VALUES (" +
+                $"{objCuentaBE.id_cliente}, " +
+                $"{objCuentaBE.id_tipo_cuenta}, " +
+                $"{objCuentaBE.numero_cuenta}, " +
+                $"{objCuentaBE.saldo_contable}, " +
+                $"{objCuentaBE.saldo_disponible}, " +
+                $"{objCuentaBE.id_estado_cuenta}) " +
+                $"SELECT SCOPE_IDENTITY()";
+
+            conn.Open();
+            objCuentaBE.id_cuenta = conn.Query<int>(query).Single();
+            conn.Close();
+            return objCuentaBE;
         }
     }
 }

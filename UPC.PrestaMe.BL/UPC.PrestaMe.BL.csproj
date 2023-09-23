@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UPC.PrestaMe.DA\UPC.PrestaMe.DA.csproj" />
+  </ItemGroup>
+
 </Project>
