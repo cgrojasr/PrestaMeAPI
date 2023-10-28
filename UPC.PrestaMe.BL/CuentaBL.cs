@@ -30,7 +30,12 @@ namespace UPC.PrestaMe.BL
         public CuentaBE Registrar(CuentaBE objCuentaBE) {
             try
             {
-                return objCuentaDA.Registrar(objCuentaBE);
+                
+                objCuentaBE = objCuentaDA.Registrar(objCuentaBE);
+                var numero_cuenta = $"151-{objCuentaBE.id_cuenta+100000}-{(new Random()).Next(0,9)}-{(new Random()).Next(10, 99)}";
+                objCuentaDA.RegistrarNumeroCuenta(objCuentaBE.id_cuenta, numero_cuenta);
+                objCuentaBE.numero_cuenta = numero_cuenta;
+                return objCuentaBE;
             }
             catch (Exception)
             {

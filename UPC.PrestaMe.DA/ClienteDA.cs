@@ -57,8 +57,8 @@ namespace UPC.PrestaMe.DA
             using (conn) {
                 var id_cliente = conn.QuerySingle<int>(query);
                 objClienteBE.id_cliente = id_cliente;
+                return objClienteBE;
             }
-            return objClienteBE;
         }
 
         public ClienteBE Actualizar(ClienteBE objClienteBE)
@@ -90,10 +90,10 @@ namespace UPC.PrestaMe.DA
         }
 
         public ClienteBE BuscarPorId(int id_cliente) {
-            ClienteBE objClienteBE = new ClienteBE();
             var query = $"SELECT * FROM cliente WHERE id_cliente = {id_cliente}";
             using (conn)
             {
+                ClienteBE objClienteBE = new ClienteBE();
                 objClienteBE = conn.QuerySingle<ClienteBE>(query);
                 return objClienteBE;
             }

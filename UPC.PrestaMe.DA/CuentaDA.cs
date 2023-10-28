@@ -24,10 +24,12 @@ namespace UPC.PrestaMe.DA
                 $"FROM cuenta " +
                 $"WHERE id_cliente = {id_cliente}";
 
-            conn.Open();
-            var lstCuentasPorCliente = conn.Query<CuentaBE_ListarPorCliente>(query).ToList();
-            conn.Close();
-            return lstCuentasPorCliente;
+            using (conn)
+            {
+                conn.Open();
+                var lstCuentasPorCliente = conn.Query<CuentaBE_ListarPorCliente>(query).ToList();
+                return lstCuentasPorCliente;
+            }
         }
 
         public CuentaBE Registrar(CuentaBE objCuentaBE) {
@@ -41,10 +43,21 @@ namespace UPC.PrestaMe.DA
                 $"{objCuentaBE.id_estado_cuenta}) " +
                 $"SELECT SCOPE_IDENTITY()";
 
-            conn.Open();
-            objCuentaBE.id_cuenta = conn.Query<int>(query).Single();
-            conn.Close();
+            objCuentaBE.id_cuenta = conn.Query<int>(query).Single();            
             return objCuentaBE;
+        }
+
+        public void RegistrarNumeroCuenta(int id_cuenta, string numero_cuenta)
+        {
+            using(conn)
+            {
+                var query =
+                $"UPDATE cuenta SET " +
+                $"numero_cuenta = '{numero_cuenta}' " +
+                $"WHERE id_cuenta = {id_cuenta}";
+
+                conn.Execute(query);
+            }
         }
     }
 }
