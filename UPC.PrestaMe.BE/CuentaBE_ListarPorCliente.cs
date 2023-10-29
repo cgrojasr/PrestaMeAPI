@@ -10,6 +10,6 @@ namespace UPC.PrestaMe.BE
     {
         public int id_cuenta { get; set; }
         public string numero_cuenta { get; set; } = string.Empty;
-        public decimal saldo_contable { get; set; }
+        public decimal saldo_disponible { get; set; }
     }
 }

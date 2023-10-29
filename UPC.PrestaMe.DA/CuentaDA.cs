@@ -20,7 +20,7 @@ namespace UPC.PrestaMe.DA
 
         public IEnumerable<CuentaBE_ListarPorCliente> ListarPorCliente(int id_cliente) {
             var query = 
-                $"SELECT id_cuenta, numero_cuenta, saldo_contable " +
+                $"SELECT id_cuenta, numero_cuenta, saldo_disponible " +
                 $"FROM cuenta " +
                 $"WHERE id_cliente = {id_cliente}";
 
@@ -37,7 +37,7 @@ namespace UPC.PrestaMe.DA
                 $"INSERT cuenta VALUES (" +
                 $"{objCuentaBE.id_cliente}, " +
                 $"{objCuentaBE.id_tipo_cuenta}, " +
-                $"{objCuentaBE.numero_cuenta}, " +
+                $"'{objCuentaBE.numero_cuenta}', " +
                 $"{objCuentaBE.saldo_contable}, " +
                 $"{objCuentaBE.saldo_disponible}, " +
                 $"{objCuentaBE.id_estado_cuenta}) " +
